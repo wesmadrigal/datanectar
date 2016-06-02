@@ -13,7 +13,7 @@
 Datanectar heavily leverages Spotify's [luigi](https://media.readthedocs.org/pdf/luigi/latest/luigi.pdf).  Luigi provides a very nice architecture for dependency based task chain workflows.  Since there is a plethora of documentation on the project, I'm going to defer going deeper to their docs.
 
 ## Task idempotency
-Datanectar is currently tied to AWS in that outside of local development, the project has direct plugs into Amazon S3 for the Task Targets (more on this below).  This was chosen for two reasons.  One, S3 is in the cloud and atomic.  Two, the project aims to be horizontally scalable and we need a canonical location for those horizontal disparate nodes to look when deciding whether or not they need to execute a task.
+Datanectar is currently tied to AWS in that outside of local development, the project has direct plugs into Amazon S3 for the Task Targets (more on this below).  This was chosen for two reasons.  One, S3 is in the cloud and atomic, two, the project aims to be horizontally scalable and we need a canonical location for those horizontal disparate nodes to look when deciding whether or not they need to execute a task.
 
 ## Task failover resolution
 Due to the fact we have achieved idempotency in the project, if we have a 5 step task chain and step 3 fails, we can simply pick back up at step 3 after the bug is fixed.  Our step 1-3 targets (the output of our tasks) are already in S3 (or our local filesystem if we're doing local dev).
