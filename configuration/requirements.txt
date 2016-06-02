@@ -1,0 +1,10 @@
+flask
+sqlalchemy
+luigi
+requests
+boto
+gunicorn
+pytz
+numpy
+scipy
+sklearn

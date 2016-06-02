@@ -1,0 +1,19 @@
+FROM ubuntu:latest
+MAINTAINER Wes Madrigal <wesley7879@gmail.com>
+
+RUN apt-get -y install supervisor
+RUN apt-get -y install nginx
+
+ADD . /opt/
+
+COPY configuration/supervisor_nginx.conf /etc/supervisord.conf
+
+COPY configuration/nginx.conf /etc/nginx/nginx.conf
+
+# Restart nginx [load the config]
+RUN service nginx stop
+
+# Start supervisor
+CMD supervisord -c /etc/supervisord.conf -n
+
+EXPOSE 80

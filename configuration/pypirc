@@ -1,0 +1,12 @@
+[distutils]
+index-servers =
+    my_local_pip_server
+
+[my_local_pip_server]
+repository: http://192.241.234.211:7001
+username: wes
+password: gipetto
+
+[global]
+extra-index-url = http://192.241.234.211:7001
+trusted-host = 192.241.234.211

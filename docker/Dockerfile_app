@@ -1,0 +1,35 @@
+FROM ubuntu:latest
+
+MAINTAINER Wes Madrigal <wesley7879@gmail.com>
+
+# Stop supervisor service
+RUN apt-get update
+RUN apt-get -y install libmysqlclient-dev
+RUN apt-get -y install mysql-server
+#RUN apt-get -y install build-essential autoconf libtool pkg-config python-opengl python-imaging python-pyrex python-pyside.qtopengl idle-python2.7 qt4-dev-tools qt4-designer libqtgui4 libqtcore4 libqt4-xml libqt4-test libqt4-script libqt4-network libqt4-dbus python-qt4 python-qt4-gl libgle3 python-dev
+# probably a better alternative
+RUN apt-get -y install python-dev libxml2-dev libxslt1-dev zlib1g-dev
+RUN apt-get -y install libffi-dev
+RUN apt-get -y install libssl-dev
+RUN apt-get -y install libblas-dev liblapack-dev libatlas-base-dev gfortran
+RUN service supervisor stop
+
+ADD . /opt/
+
+COPY configuration/pypirc ~/.pypirc
+
+RUN /usr/bin/pip install -r /opt/configuration/requirements.txt --extra-index-url http://YOURPIPURL
+
+# Add project specific files
+COPY configuration/supervisor.conf /etc/supervisord.conf
+COPY configuration/supervisor_app.conf /etc/supervisor/conf.d/
+COPY configuration/supervisor_luigi.conf /etc/supervisor/conf.d/
+
+# Copy over app specific scripts & make executable
+# Setting default command
+RUN chmod +x /opt/configuration/startup_app.sh
+CMD /opt/configuration/startup_app.sh
+
+# Ref ports to open
+EXPOSE 5000
+EXPOSE 8082
