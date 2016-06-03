@@ -112,7 +112,7 @@ status: 200
 }
 ```
 * that <b>resource_url</b> is the path to your <b>luigi.Target</b> which is defined in your task
-* now, you can check the front-ends just like before, but now navigate to your [s3 console](https://console.aws.amazon.com/s3/home?region=us-west-2#]
+* now, you can check the front-ends just like before, but now navigate to your [s3 console](https://console.aws.amazon.com/s3/home?region=us-west-2#)
 * you should see an s3 bucket with your `ENV.PROJECT_BUCKET` environment variables
 * The S3 bucket schema <b>mirrors our project structure</b>
 * The S3 bucket path will be <b>chains/testchains/hello_luigiworld_chain/TestS3Task</b>
