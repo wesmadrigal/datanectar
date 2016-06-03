@@ -35,12 +35,12 @@ If these schema and taxonomy are not followed, there will be no API availability
 Likely the biggest issue I've had working with data scientists over the years is the transition from data science to production ready code.  In most places the data scientists explore the data and build their models, then hand the code off to software engineers to rewrite / wrap in something production ready.  This often proves to be nontrivial, error-prone, and quite frankly a horrible use of software engineering time.  The datanectar project aims to eliminate this friction and allow the data scientists to plug directly into the <b>NectarS3Task</b> (or your custom luigi.Task child) and get out of the box all of the above (logging, atomic availability of results with hashed tags, logs, api access, visualization, etc.).
 
 # Local Setup
-* checkout the project <i>git clone https://github.com/wesmadrigal/datanectar</i>
-* <i>cd datanectar</i>
-* build the virtual environment <i>virtualenv venv</i>
-* install dependencies <i>venv/bin/pip install -r configuration/requirements.txt</i>
-* startup the luigi server <i>source venv/bin/activate && luigid</i>
-* startup the app server <i>cd ~/path/to/datanectar/code/ && ../venv/bin/python app.py</i>
+* checkout the project `git clone https://github.com/wesmadrigal/datanectar`
+* `cd datanectar`
+* build the virtual environment: `virtualenv venv`
+* install dependencies: `venv/bin/pip install -r configuration/requirements.txt`
+* startup the luigi server: `source venv/bin/activate && luigid`
+* startup the app server: `cd ~/path/to/datanectar/code/ && ../venv/bin/python app.py`
 * visit http://localhost:5000 (app front-end)
 * visit http://localhost:8082 (luigi front-end)
 
