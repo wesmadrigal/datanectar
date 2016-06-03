@@ -46,8 +46,8 @@ Likely the biggest issue I've had working with data scientists over the years is
 
 ## API and Hello World task (Local)
 * make sure you've got the <b>app</b> and <b>luigi</b> running (final steps in local setup)
-* visit http://localhost:5000/api/chains to explore the available task chains
-* we'll be using the test chain at http://localhost:5000/api/chains/testchains/hello_luigiworld_chain
+* visit <i>http://localhost:5000/api/chains</i> to explore the available task chains
+* we'll be using the test chain at <i>http://localhost:5000/api/chains/testchains/hello_luigiworld_chain</i>
 * fire up a python shell (you'll need the `requests` package)
 * in the python shell execute the following:
 * `import requests`
@@ -94,16 +94,30 @@ status: 200
 * `cd ~/path/to/datanectar && venv/bin/python luigid`
 * ok, given that your AWS credentials are correct we will now do the same as the local hello world but our output will go to s3 instead of our local machine
 * fire up a python shell and execute the following commands
-* `import requests`
+* `import requests, json`
 * `r = requests.post('http://localhost:5000/api/chains/testchains/TestS3Task')
+* `status_url = json.loads(r.text)['data']['status_url'])`
+* <b>when the task finishes this time, our status URL will respond with the S3 resource</b>
+* `status_resource = requests.get(status_url)`
+* `print status_resource.text`
+```
+{
+  "data": {
+    "expires_in": 600, 
+    "job_status": null, 
+    "resource_url": "https://qa.datanectartest.s3.amazonaws.com/chains/testchains/hello_luigiworld_chain/TestS3Task/b226f1826734303ca9d39d79f960b367/out.txt?Signature=2DVZzbEJEFjcgNBELrJPe0S2wwc%3D&Expires=1464972637&AWSAccessKeyId=obfuscated"
+  }, 
+  "message": "success", 
+  "status": 200
+}
+```
+* that <b>resource_url</b> is the path to your <b>luigi.Target</b> which is defined in your task
 * now, you can check the front-ends just like before, but now navigate to your [s3 console](https://console.aws.amazon.com/s3/home?region=us-west-2#]
 * you should see an s3 bucket with your `ENV.PROJECT_BUCKET` environment variables
-* inside that bucket you should see a key called `chains`
-* inside `chains` you should see another called `testchains`
-* inside `testchains` you should see `hello_luigiworld_chain`
-* inside `hello_luigiworld_chain` you should see `TestS3Task`
-* inside `TestS3Task` you should see an MD5 hash, which represents the task you just executed, click that
-* inside that hash you'll see <b>out.txt</b>, <b>log</b>, and <b>params.txt</b>
+* The S3 bucket schema <b>mirrors our project structure</b>
+* The S3 bucket path will be <b>chains/testchains/hello_luigiworld_chain/TestS3Task</b>
+* inside `TestS3Task` key you should see an <b>MD5 hash</b>, which represents the task you just executed, click that
+* inside that hash you should see <b>out.txt</b>, <b>log</b>, and <b>params.txt</b>
 * <b>out.txt</b> is the Target output of your task
 * <b>logs</b> contains the stdout and stderr of our task execution
 * <b>params.txt</b> contains the parameters provided for this task
@@ -148,7 +162,7 @@ API
                     {
   "data": {
     "expires_in": 60,
-    "target_url": "https://qa.datanectar.s3.amazonaws.com/chains/test/hello_world_chain/TestS3Task/testdocker?Signature=3lFmgIabBQ9s51M1M2ajKiix4po%3D&Expires=1458956284&AWSAccessKeyId=AKIAI7ATDBGNCBNWZ7SQ"
+    "target_url": "https://qa.datanectar.s3.amazonaws.com/chains/test/hello_world_chain/TestS3Task/testdocker?Signature=3lFmgIabBQ9s51M1M2ajKiix4po%3D&Expires=1458956284&AWSAccessKeyId=obfuscated"
   },
   "message": "success",
   "status": 200
