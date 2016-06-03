@@ -13,7 +13,7 @@
 Datanectar heavily leverages Spotify's [luigi](https://media.readthedocs.org/pdf/luigi/latest/luigi.pdf).  Luigi provides a very nice architecture for dependency based task chain workflows.  Since there is a plethora of documentation on the project, I'm going to defer going deeper to their docs.
 
 ## Task idempotency
-Datanectar is currently tied to AWS in that outside of local development, the project has direct plugs into Amazon S3 for the Task Targets (more on this below).  This was chosen for two reasons.  One, S3 is in the cloud and atomic.  Two, the project aims to be horizontally scalable and we need a canonical location for those horizontal disparate nodes to look when deciding whether or not they need to execute a task.
+Datanectar is currently tied to AWS in that outside of local development, the project has direct plugs into Amazon S3 for the Task Targets (more on this below).  This was chosen for two reasons.  One, S3 is in the cloud and atomic, two, the project aims to be horizontally scalable and we need a canonical location for those horizontal disparate nodes to look when deciding whether or not they need to execute a task.
 
 ## Task failover resolution
 Due to the fact we have achieved idempotency in the project, if we have a 5 step task chain and step 3 fails, we can simply pick back up at step 3 after the bug is fixed.  Our step 1-3 targets (the output of our tasks) are already in S3 (or our local filesystem if we're doing local dev).
@@ -37,7 +37,7 @@ Likely the biggest issue I've had working with data scientists over the years is
 # Local Setup
 * obviously checkout the project
 * virtualenv venv
-* venv/bin/pip install -r requirements.txt
+* venv/bin/pip install -r configuration/requirements.txt
 * build the docker container
 * set env variables either in your local profile or in the container AWS_ACCESS_KEY_ID=(yours), AWS_SECRET_ACCESS_KEY=(yours), ENV=local, PROJECT_BUCKET=(your custom name, defaults to datanectar)
 * in one terminal execute <i>luigid</i>
@@ -81,7 +81,7 @@ API
    * responses
       * the API will provide an HTTP response by default with an ephemeral s3 url for the target created by the task like: 
 
-
+```
                     {
   "data": {
     "expires_in": 60,
@@ -90,3 +90,4 @@ API
   "message": "success",
   "status": 200
 }
+```
