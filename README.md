@@ -38,7 +38,7 @@ Likely the biggest issue I've had working with data scientists over the years is
 * obviously checkout the project
 * virtualenv venv
 * venv/bin/pip install -r configuration/requirements.txt
-* build the docker container
+* build the docker container (this step optional and renders virtualenv irrelevant)
 * set env variables either in your local profile or in the container AWS_ACCESS_KEY_ID=(yours), AWS_SECRET_ACCESS_KEY=(yours), ENV=local, PROJECT_BUCKET=(your custom name, defaults to datanectar)
 * in one terminal execute <i>luigid</i>
 * in another terminal <i>cd ~/path/to/datanectar/code/ && ../venv/bin/python app.py</i>
