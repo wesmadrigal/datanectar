@@ -44,6 +44,42 @@ Likely the biggest issue I've had working with data scientists over the years is
 * visit http://localhost:5000 (app front-end)
 * visit http://localhost:8082 (luigi front-end)
 
+# API and Hello World task (Local)
+* visit http://localhost:5000/api/chains to explore the available task chains
+* we'll be using the test chain at http://localhost:5000/api/chains/testchains/hello_luigiworld_chain
+* make sure you've got the <b>app</b> and <b>luigi</b> running (final steps in local setup)
+* fire up a python shell with `venv/bin/python` (make sure we've got the project requirements in the context of our virtual environment)
+* in the python shell execute the following:
+* `import requests`
+* `r = requests.post('http://localhost:5000/api/chains/testchains/hello_luigiworld_chain/TestS3Task')
+* `print r.text`
+```
+{
+  "data": {
+    "expires_in": 600, 
+    "status_url": "http://localhost:5000/api/chainstatus?chain=chains/testchains/hello_luigiworld_chain/TestS3Task/b226f1826734303ca9d39d79f960b367/out.txt"
+  }, 
+  "message": "success", 
+  "status": 200
+}
+```
+* `status = requests.get('http://localhost:5000/api/chainstatus?chain=chains/testchains/hello_luigiworld_chain/TestS3Task/b226f1826734303ca9d39d79f960b367/out.txt')`
+* `print status.text`
+```
+{
+data: {
+expires_in: null,
+job_status: "RUNNING",
+resource_url: null
+},
+message: "success",
+status: 200
+}
+```
+* visit http://localhost:8082 and check the status on the luigi front-end (the API mirrors this status)
+* when the task finally finishes (after about 2 minutes), you should see the target in <i>~/path/to/datanectar/local_targets</i>
+* if you don't see it there, check the luigi front-end to see if a stack trace exists
+
 
 # More on architecture
 
