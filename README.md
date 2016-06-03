@@ -9,29 +9,29 @@
 6. Dynamically built API
 7. Bridgeing the gap between data science and software engineering (lets the data scientists worry about the data science and provides a software engineering backend for them to work with and go directly to production)
 
-1. ### Dependency based task chain execution workflow
+### Dependency based task chain execution workflow
 Datanectar heavily leverages Spotify's [luigi](https://media.readthedocs.org/pdf/luigi/latest/luigi.pdf).  Luigi provides a very nice architecture for dependency based task chain workflows.  Since there is a plethora of documentation on the project, I'm going to defer going deeper to their docs.
 
-2. ### Task idempotency
+### Task idempotency
 Datanectar is currently tied to AWS in that outside of local development, the project has direct plugs into Amazon S3 for the Task Targets (more on this below).  This was chosen for two reasons.  One, S3 is in the cloud and atomic, two, the project aims to be horizontally scalable and we need a canonical location for those horizontal disparate nodes to look when deciding whether or not they need to execute a task.
 
-3. ### Task failover resolution
+### Task failover resolution
 Due to the fact we have achieved idempotency in the project, if we have a 5 step task chain and step 3 fails, we can simply pick back up at step 3 after the bug is fixed.  Our step 1-3 targets (the output of our tasks) are already in S3 (or our local filesystem if we're doing local dev).
 
-4. ### Task logging
+### Task logging
 Datanectar creates tempfiles and pushes them to S3 out of the box for us.
 
-5. ### Task visualization front-end
+### Task visualization front-end
 Thanks to the authors of luigi, we get a d3 directed acrylic graph of tasks, their statuses, and stack traces for free.  Since datanectar uses luigi, this is available fo free
 
-6. ### Dynamically built API
+### Dynamically built API
 Datanectar imposes certain taxonomy on the developer to make use of a dynamically available API for HTTP based task execution (if desired).  
 * All task chains must live under some <b>chains/[somechaintype]</b> dir.  
 * The actual chain definition in python code must be suffixed with <b>_chain.py</b>.  Ex. (<b>hello_luigiworld_chain.py</b>).  
 * The <i>Task</i> classes within the chain.py file must be suffixed with <b>Task</b> Ex. (<b>TestS3Task, DownstreamTask, ETLTask</b>). 
 If these schema and taxonomy are not followed, there will be no API availability at (http://localhost:5000/api/chains or your custom project URI in production).
 
-7. ### Bridging the gap between data science and software engineering
+### Bridging the gap between data science and software engineering
 Likely the biggest issue I've had working with data scientists over the years is the transition from data science to production ready code.  In most places the data scientists explore the data and build their models, then hand the code off to software engineers to rewrite / wrap in something production ready.  This often proves to be nontrivial, error-prone, and quite frankly a horrible use of software engineering time.  The datanectar project aims to eliminate this friction and allow the data scientists to plug directly into the <b>NectarS3Task</b> (or your custom luigi.Task child) and get out of the box all of the above (logging, atomic availability of results with hashed tags, logs, api access, visualization, etc.).
 
 ## Local Setup
@@ -79,6 +79,34 @@ status: 200
 * visit http://localhost:8082 and check the status on the luigi front-end (the API mirrors this status)
 * when the task finally finishes (after about 2 minutes), you should see the target in <i>~/path/to/datanectar/local_targets</i>
 * if you don't see it there, check the luigi front-end to see if a stack trace exists
+
+## API and Hello World (production-ready REQUIRES AWS ACCESS)
+* this is where our Environment variables come in
+* in your ~/.bash_profile or ~/.profile dependening on your distribution, set the following
+* `AWS_ACCESS_KEY_ID=YOURKEY`
+* `AWS_SECRET_ACCESS_KEY=YOURSECRET`
+* `ENV=(qa, prod, or your preference for env name but needs to be something other than local)`
+* `PROJECT_BUCKET=yourcustomprojectname`
+* Now that we have our environment variables set, make sure you've resourced the environment in all relevant terminals before continuing `source ~/.bash_profile` or `source ~/.profile`
+* fire up the app server 
+* `cd ~/path/to/datanectar/code && ../venv/bin/python app.py`
+* fire up luigi 
+* `cd ~/path/to/datanectar && venv/bin/python luigid`
+* ok, given that your AWS credentials are correct we will now do the same as the local hello world but our output will go to s3 instead of our local machine
+* fire up a python shell and execute the following commands
+* `import requests`
+* `r = requests.post('http://localhost:5000/api/chains/testchains/TestS3Task')
+* now, you can check the front-ends just like before, but now navigate to your [s3 console](https://console.aws.amazon.com/s3/home?region=us-west-2#]
+* you should see an s3 bucket with your `ENV.PROJECT_BUCKET` environment variables
+* inside that bucket you should see a key called `chains`
+* inside `chains` you should see another called `testchains`
+* inside `testchains` you should see `hello_luigiworld_chain`
+* inside `hello_luigiworld_chain` you should see `TestS3Task`
+* inside `TestS3Task` you should see an MD5 hash, which represents the task you just executed, click that
+* inside that hash you'll see <b>out.txt</b>, <b>log</b>, and <b>params.txt</b>
+* <b>out.txt</b> is the Target output of your task
+* <b>logs</b> contains the stdout and stderr of our task execution
+* <b>params.txt</b> contains the parameters provided for this task
 
 
 ## More on architecture
