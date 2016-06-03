@@ -9,32 +9,32 @@
 6. Dynamically built API
 7. Bridgeing the gap between data science and software engineering (lets the data scientists worry about the data science and provides a software engineering backend for them to work with and go directly to production)
 
-## Dependency based task chain execution workflow
+1. ### Dependency based task chain execution workflow
 Datanectar heavily leverages Spotify's [luigi](https://media.readthedocs.org/pdf/luigi/latest/luigi.pdf).  Luigi provides a very nice architecture for dependency based task chain workflows.  Since there is a plethora of documentation on the project, I'm going to defer going deeper to their docs.
 
-## Task idempotency
+2. ### Task idempotency
 Datanectar is currently tied to AWS in that outside of local development, the project has direct plugs into Amazon S3 for the Task Targets (more on this below).  This was chosen for two reasons.  One, S3 is in the cloud and atomic, two, the project aims to be horizontally scalable and we need a canonical location for those horizontal disparate nodes to look when deciding whether or not they need to execute a task.
 
-## Task failover resolution
+3. ### Task failover resolution
 Due to the fact we have achieved idempotency in the project, if we have a 5 step task chain and step 3 fails, we can simply pick back up at step 3 after the bug is fixed.  Our step 1-3 targets (the output of our tasks) are already in S3 (or our local filesystem if we're doing local dev).
 
-## Task logging
+4. ### Task logging
 Datanectar creates tempfiles and pushes them to S3 out of the box for us.
 
-## Task visualization front-end
+5. ### Task visualization front-end
 Thanks to the authors of luigi, we get a d3 directed acrylic graph of tasks, their statuses, and stack traces for free.  Since datanectar uses luigi, this is available fo free
 
-## Dynamically built API
+6. ### Dynamically built API
 Datanectar imposes certain taxonomy on the developer to make use of a dynamically available API for HTTP based task execution (if desired).  
 * All task chains must live under some <b>chains/[somechaintype]</b> dir.  
 * The actual chain definition in python code must be suffixed with <b>_chain.py</b>.  Ex. (<b>hello_luigiworld_chain.py</b>).  
 * The <i>Task</i> classes within the chain.py file must be suffixed with <b>Task</b> Ex. (<b>TestS3Task, DownstreamTask, ETLTask</b>). 
 If these schema and taxonomy are not followed, there will be no API availability at (http://localhost:5000/api/chains or your custom project URI in production).
 
-## Bridging the gap between data science and software engineering
+7. ### Bridging the gap between data science and software engineering
 Likely the biggest issue I've had working with data scientists over the years is the transition from data science to production ready code.  In most places the data scientists explore the data and build their models, then hand the code off to software engineers to rewrite / wrap in something production ready.  This often proves to be nontrivial, error-prone, and quite frankly a horrible use of software engineering time.  The datanectar project aims to eliminate this friction and allow the data scientists to plug directly into the <b>NectarS3Task</b> (or your custom luigi.Task child) and get out of the box all of the above (logging, atomic availability of results with hashed tags, logs, api access, visualization, etc.).
 
-# Local Setup
+## Local Setup
 * checkout the project `git clone https://github.com/wesmadrigal/datanectar`
 * `cd datanectar`
 * build the virtual environment: `virtualenv venv`
@@ -44,7 +44,7 @@ Likely the biggest issue I've had working with data scientists over the years is
 * visit http://localhost:5000 (app front-end)
 * visit http://localhost:8082 (luigi front-end)
 
-# API and Hello World task (Local)
+## API and Hello World task (Local)
 * make sure you've got the <b>app</b> and <b>luigi</b> running (final steps in local setup)
 * visit http://localhost:5000/api/chains to explore the available task chains
 * we'll be using the test chain at http://localhost:5000/api/chains/testchains/hello_luigiworld_chain
@@ -81,7 +81,7 @@ status: 200
 * if you don't see it there, check the luigi front-end to see if a stack trace exists
 
 
-# More on architecture
+## More on architecture
 
 Chains
 
