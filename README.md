@@ -45,10 +45,10 @@ Likely the biggest issue I've had working with data scientists over the years is
 * visit http://localhost:8082 (luigi front-end)
 
 # API and Hello World task (Local)
+* make sure you've got the <b>app</b> and <b>luigi</b> running (final steps in local setup)
 * visit http://localhost:5000/api/chains to explore the available task chains
 * we'll be using the test chain at http://localhost:5000/api/chains/testchains/hello_luigiworld_chain
-* make sure you've got the <b>app</b> and <b>luigi</b> running (final steps in local setup)
-* fire up a python shell with `venv/bin/python` (make sure we've got the project requirements in the context of our virtual environment)
+* fire up a python shell (you'll need the `requests` package)
 * in the python shell execute the following:
 * `import requests`
 * `r = requests.post('http://localhost:5000/api/chains/testchains/hello_luigiworld_chain/TestS3Task')
