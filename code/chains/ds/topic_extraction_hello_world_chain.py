@@ -14,7 +14,10 @@ from pathutils import project_path
 PROJECT_CODE_PATH = os.path.join(project_path(), 'code')
 sys.path.append(PROJECT_CODE_PATH)
 
-from util.s3task import NectarS3Task
+from util.nectar_s3_task import NectarS3Task
+from util.nectar_local_task import NectarLocalTask
+
+TheTaskClass = NectarLocalTask if os.getenv('ENV', 'local') == 'local' else NectarS3Task
 
 # Author: Olivier Grisel <olivier.grisel@ensta.org>
 #         Lars Buitinck <L.J.Buitinck@uva.nl>
@@ -47,21 +50,13 @@ def get_top_words(model, feature_names, n_top_words):
 # only one document or in at least 95% of the documents are removed.
 
 
-class VectorizationDataTask(NectarS3Task):
+class VectorizationDataTask(TheTaskClass):
     today = luigi.Parameter(
            default=datetime.strftime(datetime.now(), '%Y-%m-%d')
           ) 
 
     def requires(self):
         return None
-
-    def output(self):
-        if os.getenv('ENV', 'local') == 'local':
-            return self.get_local_target()
-        return luigi.s3.S3Target(
-                self.get_s3target_path(),
-                client=self.s3client
-                )
 
     def run(self):
         print("Loading dataset...")
@@ -73,21 +68,13 @@ class VectorizationDataTask(NectarS3Task):
         with self.output().open('w') as out_f:
             out_f.write(json.dumps({'data' : data_samples}))
 
-class LDAExtractTopicsTask(NectarS3Task):
+class LDAExtractTopicsTask(TheTaskClass):
     today = luigi.Parameter(
            default=datetime.strftime(datetime.now(), '%Y-%m-%d')
           ) 
 
     def requires(self):
         return VectorizationDataTask(today=self.today)
-
-    def output(self):
-        if os.getenv('ENV', 'local') == 'local':
-            return self.get_local_target()
-        return luigi.s3.S3Target(
-                self.get_s3target_path(),
-                client=self.s3client
-                )
 
     def run(self):
 # Use tf-idf features for NMF.

@@ -19,7 +19,8 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 from pathutils import project_path
-sys.path.append(os.path.join(project_path(), 'code'))
+PROJECT_PATH_BASE = project_path()
+sys.path.append(os.path.join(PROJECT_PATH_BASE, 'code'))
 
 from api_chains import APIChainCollection
 from util.luigi_helpers import traverse_task_requires
@@ -133,11 +134,25 @@ class Task(View):
                                 stderr=stderr
                                 )                    
                         # let's fire up a task instance for the rest of what we need here
-                        this_task_instance = this_task(**{k: request.args.get(k) for k in request.args.keys()})                       
+                        this_task_instance = this_task(**{k: request.args.get(k) for k in request.args.keys()})
                         if local:
+                            # we mirror the project structure for the Targets
+                            # executing the LDAExtractTopicsTask in chains/ds/topic_extraction_hello_world_chain.py
+                            # will output to...
+                            # datanectar/local_targets/chains/ds/topic_extraction_hello_world_chain/LDAExtractTopicsTask/3jklbda3kldf
+                            # where 3jklbda3kldf is an MD5 hash of the parameters of the task
+                            this_task_instance.setup_dirs()
+                            with open(this_task_instance.STDOUT_PATH, 'w') as stdout_w:
+                                with open(stdout_path, 'r') as stdout_r:
+                                    stdout_w.write(stdout_r.read())
+
+                            with open(this_task_instance.STDERR_PATH, 'w') as stderr_w:
+                                with open(stderr_path, 'r') as stderr_r:
+                                    stderr_w.write(stderr_r.read())
+
                             resp = {
                                 "data" : {
-                                    "status_url" : DATANECTAR_STATUS_URI.format(VPC, this_task_instance.get_s3target_relative_path()),
+                                    "status_url" : DATANECTAR_STATUS_URI.format(VPC, this_task_instance.get_target_relative_path()),
                                     "expires_in" : 600
                                     },
                                 "status" : 200,
@@ -195,6 +210,10 @@ class ChainStatus(View):
             task_hashed_params = chain_key.split('/')[-2]
             luigi_statuses = ['PENDING', 'RUNNING', 'DONE', 'FAILED'] 
             task_status = None
+            # we're iterating through all of the luigi internal
+            # statuses and checking the luigi internal api for
+            # the updated status for OUR api....we've basically
+            # built a layer on top of their internal API
             for status in luigi_statuses:
                 status_endpoint = LUIGI_STATUS_URI % (LUIGI_URI, status)
                 logger.debug("Checking %s" % status_endpoint)

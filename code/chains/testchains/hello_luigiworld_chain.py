@@ -9,38 +9,26 @@ from pathutils import project_path
 PROJECT_CODE_PATH = os.path.join(project_path(), 'code')
 sys.path.append(PROJECT_CODE_PATH)
 
-from util.s3task import NectarS3Task
+from util.nectar_s3_task import NectarS3Task
+from util.nectar_local_task import NectarLocalTask
 
-class TestS3Task(NectarS3Task):
+TheTaskClass = NectarLocalTask if os.getenv('ENV', 'local') == 'local' else NectarS3Task
+
+class TestTask(TheTaskClass):
     def requires(self):
         return None
 
-    def output(self):
-        if os.getenv('ENV', 'local') == 'local':
-            return self.get_local_target()
-        return luigi.s3.S3Target(
-                self.get_s3target_path(),
-                client=self.s3client
-                )
-
     def run(self):
         with self.output().open('w') as f:
-            time.sleep(120)
+            time.sleep(10)
             f.write("test successfully ran at {0}".format(time.time()))
 
-class WithDepTask(NectarS3Task):
-    random_param = luigi.Parameter()
-    def requires(self):
-        return TestS3Task()
-    
-    def output(self):       
-        if os.getenv('ENV', 'local') == 'local':
-            return self.get_local_target()
-        return luigi.s3.S3Target(
-                self.get_s3target_path(),
-                client=self.s3client
-                )
 
+class WithDependencyTask(TheTaskClass):
+    aparam = luigi.Parameter()
+    def requires(self):
+        return TestTask()
+    
     def run(self):
         with self.output().open('w') as f:
             f.write("WithDepTask successfully ran at {0}".format(time.time()))

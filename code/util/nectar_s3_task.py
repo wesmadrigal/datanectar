@@ -14,8 +14,6 @@ class NectarS3Task(luigi.Task):
     def __init__(self, *args, **kwargs):
         super(NectarS3Task, self).__init__(*args, **kwargs)       
         self.KEY_TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.000Z'
-        if os.getenv('ENV', 'local') == 'local':
-            return
         self.s3client = S3Client(
                 os.getenv('AWS_ACCESS_KEY_ID'),
                 os.getenv('AWS_SECRET_ACCESS_KEY')
@@ -26,28 +24,14 @@ class NectarS3Task(luigi.Task):
                 )
         self.bucket = self.boto_s3_client.get_bucket('%s.%s' % (os.getenv('ENV', 'local'), os.getenv('PROJECT_BUCKET', 'datanectar')))
 
-    def get_local_target_path(self, target_name=''):
+    def output(self):
         """
-        Parameters
-        ---------
-        target_name : str of name to use for target
-
-        Returns
-        -------
-        target_path : str of '/' delimited file-system path to target
+        Custom implementation for s3
         """
-        return os.path.join(
-                os.path.join(project_path(), 'local_targets'),
-                self.__class__.__name__ + '.target' if target_name == '' else target_name
+        return luigi.s3.S3Target(
+                self.get_s3target_path(),
+                client=self.s3client
                 )
-
-    def get_local_target(self):
-        """
-        Returns
-        -------
-        local_target : luigi.LocalTarget instance
-        """
-        return luigi.LocalTarget(self.get_local_target_path())
 
     def get_s3target_path_base(self):
         """
