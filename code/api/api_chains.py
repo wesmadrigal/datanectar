@@ -5,8 +5,9 @@ import luigi
 import importlib
 from pathutils import project_path
 
-TASK_CHAIN_BASE_DIR = os.path.join(project_path(), 'code/chains')
-sys.path.append(TASK_CHAIN_BASE_DIR)
+TASK_BASE_DIR = os.path.join(project_path(), 'code')
+TASK_CHAIN_BASE_DIR = os.path.join(TASK_BASE_DIR, 'chains')
+sys.path.append(TASK_BASE_DIR)
 
 VPC = os.getenv('VPC', 'http://localhost:5000')
 API_BASE = VPC + '/api'
@@ -37,7 +38,6 @@ class APIChainCollection:
         for k in chain_copy.keys():
             chain_copy[k]['chains'] = map(lambda x: x.to_dict(), chain_copy[k]['chains'])
         return chain_copy
-
 
     def get_types(self):
         """
