@@ -3,6 +3,7 @@ import os
 import sys
 import luigi
 import json
+import urlparse
 import logging
 import requests
 import subprocess
@@ -185,13 +186,14 @@ class Task(View):
                         logger.info("Attempted to execute task with name %s but no such task exists" % task)
                         return
             except Exception, e:
-                logger.error("Encountered an error executing task with name: %s" % task) 
+                default_msg = "Encountered an error executing taks with name: %s" % task)
+                logger.error(default_msg) 
                 try:
                     status = 400
                     message = e.message
                 except Exception, e:
                     status = 400
-                    message = getattr(e, 'message', 'No error message')
+                    message = getattr(e, 'message', default_msg)
                 logger.error(message)
                 resp = {
                         "data" : {},
@@ -210,6 +212,7 @@ class ChainStatus(View):
             task_hashed_params = chain_key.split('/')[-2]
             luigi_statuses = ['PENDING', 'RUNNING', 'DONE', 'FAILED'] 
             task_status = None
+            target = None
             # we're iterating through all of the luigi internal
             # statuses and checking the luigi internal api for
             # the updated status for OUR api....we've basically
@@ -223,28 +226,32 @@ class ChainStatus(View):
                     if task_name in k:
                         task_status = status
                         break
+            # if we're running locally we're just going
+            # to return a filepath to the target
             if local:
+                qry = urlparse.urlsplit(request.url).query
+                target_base = os.path.join(PROJECT_PATH_BASE, 'local_targets')
+                target = os.path.join(target_base, urlparse.parse_qs(qry)['chain'][0])
                 return jsonify(**{
                     "status" : 200,
                     "data" : {
                         "job_status": task_status,
-                        "resource_url": None,
+                        "resource_url": target,
                         "expires_in" : 1000000000000
                         }
                     })
+            # not local is an s3 target (key) resource
             s3conn = connect_s3()
             bucket = s3conn.get_bucket('%s.%s' % (os.getenv('ENV', 'local'), os.getenv('PROJECT_BUCKET', 'datanectar')))
             if task_status == 'DONE' or task_status is None: 
-                key = bucket.get_key(chain_key)
-            else:
-                key = None
+                target = bucket.get_key(chain_key)
 
             return jsonify(**{
                "status" : 200,
                "data" : {
                    "job_status" : task_status,
-                   "resource_url" : key.generate_url(expires_in=600) if key is not None else None,
-                   "expires_in" : 600 if key is not None else None
+                   "resource_url" : target.generate_url(expires_in=600) if key is not None else None,
+                   "expires_in" : 600 if target is not None else None
                    },
                "message" : "success"
                })
@@ -252,5 +259,5 @@ class ChainStatus(View):
             return jsonify(**{
                 "status" : 400,
                 "data" : {},
-                "message" : "Need chain parameter"
+                "message" : "Need 'chain' parameter"
                 })

@@ -17,7 +17,8 @@ class NectarLocalTask(NectarTask):
         self.CHAIN_DIR = os.path.join(self.PROJECT_DIR, 'local_targets/chains')
         self.TYPE_DIR = os.path.join(self.CHAIN_DIR, self.chain_type())
         # will possibly have to be modified on the individual task level
-        self.TASK_DIR = os.path.join(self.TYPE_DIR, self.__class__.__name__)
+        self.SPECIFIC_CHAIN_DIR = os.path.join(self.TYPE_DIR, self.chain())
+        self.TASK_DIR = os.path.join(self.SPECIFIC_CHAIN_DIR, self.__class__.__name__)
         self.INSTANCE_DIR = os.path.join(self.TASK_DIR, self.hash_params())
         self.LOG_DIR = os.path.join(self.INSTANCE_DIR, 'log')
         self.TARGET_PATH = os.path.join(self.INSTANCE_DIR, 'out.txt')
@@ -32,7 +33,9 @@ class NectarLocalTask(NectarTask):
             os.mkdir(self.CHAIN_DIR)
         if not os.path.isdir(self.TYPE_DIR):
             os.mkdir(self.TYPE_DIR)
-        if not os.path.isdir(self.TASK_DIR):
+        if not os.path.isdir(self.SPECIFIC_CHAIN_DIR):
+            os.mkdir(self.SPECIFIC_CHAIN_DIR)
+        if not os.path.isdir(self.TASK_DIR):           
             os.mkdir(self.TASK_DIR)
         if not os.path.isdir(self.INSTANCE_DIR):
             os.mkdir(self.INSTANCE_DIR)

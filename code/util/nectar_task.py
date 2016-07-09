@@ -45,6 +45,14 @@ class NectarTask(luigi.Task):
         """
         return hashlib.md5(self.join_params()).hexdigest()
 
+    def chain(self):
+        """
+        Returns
+        -------
+        str : str of the chain name        
+        """
+        return sys.modules[self.__module__].__file__.strip('.pyc').split('/')[-1]
+
     def chain_type(self):
         """
         Returns

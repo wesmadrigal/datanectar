@@ -31,7 +31,8 @@ class WithDependencyTask(TheTaskClass):
     
     def run(self):
         with self.output().open('w') as f:
-            f.write("WithDepTask successfully ran at {0}".format(time.time()))
+            time.sleep(120)
+            f.write("{0} successfully ran at {1}".format(self.__class__.__name__, time.time()))
 
 
 if __name__ == '__main__':
