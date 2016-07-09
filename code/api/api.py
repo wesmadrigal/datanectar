@@ -186,7 +186,7 @@ class Task(View):
                         logger.info("Attempted to execute task with name %s but no such task exists" % task)
                         return
             except Exception, e:
-                default_msg = "Encountered an error executing taks with name: %s" % task)
+                default_msg = "Encountered an error executing taks with name: %s" % task
                 logger.error(default_msg) 
                 try:
                     status = 400
