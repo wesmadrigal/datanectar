@@ -22,7 +22,7 @@ Due to the fact we have achieved idempotency in the project, if we have a 5 step
 Datanectar creates tempfiles and pushes them to S3 out of the box for us.
 
 ### Task visualization front-end
-Thanks to the authors of luigi, we get a d3 directed acrylic graph of tasks, their statuses, and stack traces for free.  Since datanectar uses luigi, this is available fo free
+Thanks to the authors of luigi, we get a d3 directed acyclic graph of tasks, their statuses, and stack traces for free.  Since datanectar uses luigi, this is available fo free
 
 ### Dynamically built API
 Datanectar imposes certain taxonomy on the developer to make use of a dynamically available API for HTTP based task execution (if desired).  
