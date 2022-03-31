@@ -7,7 +7,7 @@
 4. Task logging
 5. Task visualization front-end
 6. Dynamically built API
-7. Bridgeing the gap between data science and software engineering (lets the data scientists worry about the data science and provides a software engineering backend for them to work with and go directly to production)
+7. Bridging the gap between data science and software engineering (lets the data scientists worry about the data science and provides a software engineering backend for them to work with and go directly to production)
 
 ### Dependency based task chain execution workflow
 Datanectar heavily leverages Spotify's [luigi](https://media.readthedocs.org/pdf/luigi/latest/luigi.pdf).  Luigi provides a very nice architecture for dependency based task chain workflows.  Since there is a plethora of documentation on the project, I'm going to defer going deeper to their docs.
